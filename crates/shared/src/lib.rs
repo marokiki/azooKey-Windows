@@ -37,7 +37,7 @@ impl Default for AppConfig {
             zenzai: ZenzaiConfig {
                 enable: false,
                 profile: "".to_string(),
-                backend: "cpu".to_string(),
+                backend: "cuda".to_string(),
             },
             keymap: {
                 let mut map = std::collections::HashMap::new();
