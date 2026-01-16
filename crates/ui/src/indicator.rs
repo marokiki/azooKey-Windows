@@ -24,6 +24,7 @@ pub fn create_indicator_window(event_loop: &EventLoop<UserEvent>) -> Result<Wind
         // .with_visible(false)
         .with_undecorated_shadow(false)
         .with_transparent(true)
+        .with_skip_taskbar(true)
         .build(&event_loop)
         .context("Failed to create window")?;
 
