@@ -84,14 +84,14 @@ impl TextServiceFactory {
         }
 
         #[allow(clippy::let_and_return)]
-        let (composition, mode) = {
+        let (composition, mode, action) = {
             let text_service = self.borrow()?;
             let composition = text_service.borrow_composition()?.clone();
-            let mode = IMEState::get()?.input_mode.clone();
-            (composition, mode)
+            let ime_state = IMEState::get()?;
+            let mode = ime_state.input_mode.clone();
+            let action = UserAction::from_key_code(wparam.0, &ime_state.config)?;
+            (composition, mode, action)
         };
-
-        let action = UserAction::try_from(wparam.0)?;
 
         let (transition, actions) = match composition.state {
             CompositionState::None => match action {
@@ -115,6 +115,10 @@ impl TextServiceFactory {
                         InputMode::Kana => ClientAction::SetIMEMode(InputMode::Latin),
                         InputMode::Latin => ClientAction::SetIMEMode(InputMode::Kana),
                     }],
+                ),
+                UserAction::SetInputMode(target_mode) => (
+                    CompositionState::None,
+                    vec![ClientAction::SetIMEMode(target_mode)],
                 ),
                 _ => {
                     return Ok(None);
@@ -176,6 +180,13 @@ impl TextServiceFactory {
                     vec![
                         ClientAction::EndComposition,
                         ClientAction::SetIMEMode(InputMode::Latin),
+                    ],
+                ),
+                UserAction::SetInputMode(target_mode) => (
+                    CompositionState::None,
+                    vec![
+                        ClientAction::EndComposition,
+                        ClientAction::SetIMEMode(target_mode),
                     ],
                 ),
                 UserAction::Space | UserAction::Tab => (
@@ -264,6 +275,13 @@ impl TextServiceFactory {
                     vec![
                         ClientAction::EndComposition,
                         ClientAction::SetIMEMode(InputMode::Latin),
+                    ],
+                ),
+                UserAction::SetInputMode(target_mode) => (
+                    CompositionState::None,
+                    vec![
+                        ClientAction::EndComposition,
+                        ClientAction::SetIMEMode(target_mode),
                     ],
                 ),
                 UserAction::Space | UserAction::Tab => (

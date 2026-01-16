@@ -13,15 +13,18 @@ pub struct IMEState {
     pub input_mode: InputMode,
     pub cookies: HashMap<GUID, u32>,
     pub context: Option<ITfContext>,
+    pub config: shared::AppConfig,
 }
 
 pub static IME_STATE: LazyLock<Mutex<IMEState>> = LazyLock::new(|| {
     tracing::debug!("Creating IMEState");
+    let config = shared::AppConfig::new();
     Mutex::new(IMEState {
         ipc_service: None,
         input_mode: InputMode::default(),
         cookies: HashMap::new(),
         context: None,
+        config,
     })
 });
 unsafe impl Sync for IMEState {}

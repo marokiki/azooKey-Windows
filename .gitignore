@@ -7,3 +7,6 @@ logs/*
 *.gguf
 *.dll
 *.lib
+node_modules
+
+settings.json

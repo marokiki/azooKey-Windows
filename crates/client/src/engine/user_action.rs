@@ -1,3 +1,4 @@
+use super::input_mode::InputMode;
 use crate::extension::VKeyExt;
 use anyhow::{Context, Result};
 use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyboardState, ToUnicode, VK_SHIFT};
@@ -15,6 +16,7 @@ pub enum UserAction {
     Function(Function),
     Number(i8),
     ToggleInputMode,
+    SetInputMode(InputMode),
 }
 
 #[derive(Debug)]
@@ -34,9 +36,18 @@ pub enum Function {
     Ten,
 }
 
-impl TryFrom<usize> for UserAction {
-    type Error = anyhow::Error;
-    fn try_from(key_code: usize) -> Result<UserAction> {
+impl UserAction {
+    pub fn from_key_code(key_code: usize, config: &shared::AppConfig) -> Result<UserAction> {
+        // check user config
+        let key_hex = format!("0x{:X}", key_code);
+        if let Some(action) = config.keymap.get(&key_hex) {
+            match action.as_str() {
+                "Latin" => return Ok(UserAction::SetInputMode(InputMode::Latin)),
+                "Kana" => return Ok(UserAction::SetInputMode(InputMode::Kana)),
+                _ => {}
+            }
+        }
+
         let action = match key_code {
             0x08 => UserAction::Backspace, // VK_BACK
             0x09 => UserAction::Tab,       // VK_TAB

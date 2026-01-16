@@ -26,6 +26,8 @@ pub struct ZenzaiConfig {
 pub struct AppConfig {
     pub version: String,
     pub zenzai: ZenzaiConfig,
+    #[serde(default)]
+    pub keymap: std::collections::HashMap<String, String>,
 }
 
 impl Default for AppConfig {
@@ -36,6 +38,12 @@ impl Default for AppConfig {
                 enable: false,
                 profile: "".to_string(),
                 backend: "cpu".to_string(),
+            },
+            keymap: {
+                let mut map = std::collections::HashMap::new();
+                map.insert("0x1D".to_string(), "Latin".to_string()); // VK_NONCONVERT -> English
+                map.insert("0x1C".to_string(), "Kana".to_string()); // VK_CONVERT -> Japanese
+                map
             },
         }
     }
