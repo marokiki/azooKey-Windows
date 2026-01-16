@@ -78,6 +78,10 @@ impl TextServiceFactory {
             return Ok(None);
         };
 
+        if IMEState::get()?.ipc_service.is_none() {
+            return Ok(None);
+        }
+
         // check shortcut keys
         if VK_CONTROL.is_pressed() {
             return Ok(None);
